@@ -13,6 +13,9 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * An error raised during the queue execution
+ */
 var QueueError = /** @class */ (function (_super) {
     __extends(QueueError, _super);
     function QueueError(message, data) {

@@ -125,14 +125,14 @@ export class TaskQueue {
       return this.dequeueByTask(arg);
     }
 
-    throw new TypeError('Argument should either be a number or a function!');
+    throw new TypeError('Argument must either be a number or a function!');
   }
 
   /**
    * Get last added task without mutating the queue
    */
   public peek() {
-    return this.tasks[this.tasks.length - 1];
+    return this.tasks.length > 0 ? this.tasks[this.tasks.length - 1] : undefined;
   }
 
 
@@ -151,7 +151,7 @@ export class TaskQueue {
   }
 
   /**
-   * Completely clears the queue
+   * Completely clears the queue.
    */
   public clear() {
     this.tasks.splice(0);
@@ -174,7 +174,7 @@ export class TaskQueue {
    * @returns a promise that resolves as soon as the queue is completed
    */
   public resume() {
-    this.currentQueue = this.launchFrom(this.pauseIndex);
+    return this.currentQueue = this.launchFrom(this.pauseIndex);
   }
 
   /**
@@ -186,6 +186,8 @@ export class TaskQueue {
     await this.pause();
     this.pauseIndex = -1;
     this.currentQueue = undefined;
+
+    return;
   }
 
   /**

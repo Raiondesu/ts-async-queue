@@ -62,32 +62,69 @@ var __read = (this && this.__read) || function (o, n) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var queueError_1 = require("./queueError");
+/**
+ * Manages a queue of async tasks
+ *
+ * @class TaskQueue
+ */
 var TaskQueue = /** @class */ (function () {
-    function TaskQueue(tasks) {
+    /**
+     * Creates an instance of TaskQueue.
+     * @param {Task[]} [tasks=[]] Tasklist
+     */
+    function TaskQueue(
+    /**
+     * Tasklist
+     */
+    tasks) {
         if (tasks === void 0) { tasks = []; }
         this.tasks = tasks;
+        /**
+         * `true` if the queue is running
+         */
         this.running = false;
+        /**
+         * An index at which the queue was paused
+         */
         this.pauseIndex = -1;
     }
+    /**
+     * Remove a task from queue by its index
+     *
+     * @returns a removed task if found
+     */
     TaskQueue.prototype.dequeueByIndex = function (index) {
         if (index === this.length - 1) {
             return this.tasks.pop();
         }
-        if (index > -1) {
+        if (index > -1 && this.tasks[index]) {
             var task = this.tasks[index];
             this.tasks.splice(index, 1);
             return task;
         }
         return undefined;
     };
+    /**
+     * Remove a task from queue by its reference. If no task was given, removes the last task.
+     * @param {T} [task] a reference to the task function to remove by
+     * @returns a removed task if found
+     */
     TaskQueue.prototype.dequeueByTask = function (task) {
         if (!task) {
             return this.tasks.pop();
         }
         var index = this.tasks.findIndex(function (t) { return t === task; });
-        this.dequeueByIndex(index);
-        return task;
+        return this.dequeueByIndex(index);
     };
+    /**
+     * Start executing the queue from a certain point.
+     * Halts if `running` flag is off (pause has occured).
+     *
+     * If any error in any task is raised - pauses queue execution and throws the error upstack.
+     *
+     * @param {number} from a point to execute a queue from
+     * @returns a promise that resolves to task results array when the queue is finished
+     */
     TaskQueue.prototype.launchFrom = function (from) {
         return __awaiter(this, void 0, void 0, function () {
             var e_1, _a, results, entries, entries_1, entries_1_1, _b, index, task, _c, _d, e_2, e_1_1;
@@ -139,6 +176,9 @@ var TaskQueue = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Adds one or more tasks to queue.
+     */
     TaskQueue.prototype.enqueue = function () {
         var tasks = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -151,14 +191,21 @@ var TaskQueue = /** @class */ (function () {
         if (typeof arg === 'number') {
             return this.dequeueByIndex(arg);
         }
-        else {
+        else if (typeof arg === 'function') {
             return this.dequeueByTask(arg);
         }
+        throw new TypeError('Argument must either be a number or a function!');
     };
+    /**
+     * Get last added task without mutating the queue
+     */
     TaskQueue.prototype.peek = function () {
-        return this.tasks[this.tasks.length - 1];
+        return this.tasks.length > 0 ? this.tasks[this.tasks.length - 1] : undefined;
     };
     Object.defineProperty(TaskQueue.prototype, "last", {
+        /**
+         * Last added task
+         */
         get: function () {
             return this.peek();
         },
@@ -166,32 +213,69 @@ var TaskQueue = /** @class */ (function () {
         configurable: true
     });
     Object.defineProperty(TaskQueue.prototype, "length", {
+        /**
+         * Queue length
+         */
         get: function () {
             return this.tasks.length;
         },
         enumerable: true,
         configurable: true
     });
+    /**
+     * Completely clears the queue.
+     */
     TaskQueue.prototype.clear = function () {
         this.tasks.splice(0);
     };
+    /**
+     * Pauses the queue's execution flow after a nearest task is completed.
+     *
+     * @returns a promise that resolves as soon as the queue is paused
+     */
     TaskQueue.prototype.pause = function () {
         this.running = false;
-        return this.runningQueue;
+        return this.currentQueue;
     };
+    /**
+     * Resumes a previously paused queue.
+     *
+     * @returns a promise that resolves as soon as the queue is completed
+     */
     TaskQueue.prototype.resume = function () {
-        this.runningQueue = this.launchFrom(this.pauseIndex);
+        return this.currentQueue = this.launchFrom(this.pauseIndex);
     };
+    /**
+     * Stops queue execution.
+     *
+     * @returns a promise that resolves as soon as the queue completely stops executing
+     */
     TaskQueue.prototype.stop = function () {
-        this.pause();
-        this.pauseIndex = -1;
-        this.runningQueue = undefined;
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.pause()];
+                    case 1:
+                        _a.sent();
+                        this.pauseIndex = -1;
+                        this.currentQueue = undefined;
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
+    /**
+     * Starts task queue execution.
+     *
+     * Returns currenlty executed queue if execution already started
+     *
+     * @returns promise with task results as an array sorted by task execution order
+     */
     TaskQueue.prototype.start = function () {
-        if (this.runningQueue) {
-            return this.runningQueue;
+        if (this.currentQueue) {
+            return this.currentQueue;
         }
-        return this.runningQueue = this.launchFrom(0);
+        return this.currentQueue = this.launchFrom(0);
     };
     return TaskQueue;
 }());
