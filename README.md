@@ -6,3 +6,4 @@
 > A simple async-await task queue written in TypeScript
 
 `npm i -S ts-async-queue`
+

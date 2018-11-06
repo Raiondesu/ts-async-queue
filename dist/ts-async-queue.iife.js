@@ -92,18 +92,21 @@ var TaskQueue = (function (exports) {
         return ar;
     }
 
-    /**
-     * TODO:
-     *
-     * - Tasks complete syncronyously
-     * - Ability to choose a specific queue for the task: labels/ids?
-     * - Choose queue priority?
-     */
-    // TODO: add newly launched queues to the map
-    // type PriorityMap = {
-    //   [id: string]: TaskQueue;
-    // };
-    // const queues: PriorityMap = {};
+    var QueueError = /** @class */ (function (_super) {
+        __extends(QueueError, _super);
+        function QueueError(message, data) {
+            var _this = _super.call(this, message) /* istanbul ignore next: because stupid typescript */ || this;
+            _this.data = data;
+            Object.setPrototypeOf(_this, QueueError.prototype);
+            _this.name = 'ResponseException';
+            return _this;
+        }
+        QueueError.prototype.toString = function () {
+            return this.name + ': ' + this.message;
+        };
+        return QueueError;
+    }(Error));
+
     var TaskQueue = /** @class */ (function () {
         function TaskQueue(tasks) {
             if (tasks === void 0) { tasks = []; }
@@ -237,20 +240,6 @@ var TaskQueue = (function (exports) {
         };
         return TaskQueue;
     }());
-    var QueueError = /** @class */ (function (_super) {
-        __extends(QueueError, _super);
-        function QueueError(message, data) {
-            var _this = _super.call(this, message) /* istanbul ignore next: because stupid typescript */ || this;
-            _this.data = data;
-            Object.setPrototypeOf(_this, QueueError.prototype);
-            _this.name = 'ResponseException';
-            return _this;
-        }
-        QueueError.prototype.toString = function () {
-            return this.name + ': ' + this.message;
-        };
-        return QueueError;
-    }(Error));
 
     exports.TaskQueue = TaskQueue;
     exports.QueueError = QueueError;

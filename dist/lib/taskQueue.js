@@ -1,43 +1,13 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation. All rights reserved.
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
-
-THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-MERCHANTABLITY OR NON-INFRINGEMENT.
-
-See the Apache Version 2.0 License for specific language governing permissions
-and limitations under the License.
-***************************************************************************** */
-/* global Reflect, Promise */
-
-var extendStatics = Object.setPrototypeOf ||
-    ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-    function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-
-function __extends(d, b) {
-    extendStatics(d, b);
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
-
-function __awaiter(thisArg, _arguments, P, generator) {
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-}
-
-function __generator(thisArg, body) {
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
     var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
     return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
@@ -63,9 +33,8 @@ function __generator(thisArg, body) {
         } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
-}
-
-function __values(o) {
+};
+var __values = (this && this.__values) || function (o) {
     var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
     if (m) return m.call(o);
     return {
@@ -74,9 +43,8 @@ function __values(o) {
             return { value: o && o[i++], done: !o };
         }
     };
-}
-
-function __read(o, n) {
+};
+var __read = (this && this.__read) || function (o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
     if (!m) return o;
     var i = m.call(o), r, ar = [], e;
@@ -91,23 +59,9 @@ function __read(o, n) {
         finally { if (e) throw e.error; }
     }
     return ar;
-}
-
-var QueueError = /** @class */ (function (_super) {
-    __extends(QueueError, _super);
-    function QueueError(message, data) {
-        var _this = _super.call(this, message) /* istanbul ignore next: because stupid typescript */ || this;
-        _this.data = data;
-        Object.setPrototypeOf(_this, QueueError.prototype);
-        _this.name = 'ResponseException';
-        return _this;
-    }
-    QueueError.prototype.toString = function () {
-        return this.name + ': ' + this.message;
-    };
-    return QueueError;
-}(Error));
-
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var queueError_1 = require("./queueError");
 var TaskQueue = /** @class */ (function () {
     function TaskQueue(tasks) {
         if (tasks === void 0) { tasks = []; }
@@ -165,7 +119,7 @@ var TaskQueue = /** @class */ (function () {
                     case 5:
                         e_2 = _e.sent();
                         this.pause();
-                        throw new QueueError("Queue paused at task #" + index + " due to error in handler " + task, e_2);
+                        throw new queueError_1.QueueError("Queue paused at task #" + index + " due to error in handler " + task, e_2);
                     case 6:
                         entries_1_1 = entries_1.next();
                         return [3 /*break*/, 2];
@@ -241,7 +195,5 @@ var TaskQueue = /** @class */ (function () {
     };
     return TaskQueue;
 }());
-
 exports.TaskQueue = TaskQueue;
-exports.QueueError = QueueError;
-//# sourceMappingURL=ts-async-queue.es5.js.map
+//# sourceMappingURL=taskQueue.js.map

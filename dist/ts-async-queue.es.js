@@ -22,18 +22,18 @@ function __awaiter(thisArg, _arguments, P, generator) {
     });
 }
 
-/**
- * TODO:
- *
- * - Tasks complete syncronyously
- * - Ability to choose a specific queue for the task: labels/ids?
- * - Choose queue priority?
- */
-// TODO: add newly launched queues to the map
-// type PriorityMap = {
-//   [id: string]: TaskQueue;
-// };
-// const queues: PriorityMap = {};
+class QueueError extends Error {
+    constructor(message, data) {
+        super(message) /* istanbul ignore next: because stupid typescript */;
+        this.data = data;
+        Object.setPrototypeOf(this, QueueError.prototype);
+        this.name = 'ResponseException';
+    }
+    toString() {
+        return this.name + ': ' + this.message;
+    }
+}
+
 class TaskQueue {
     constructor(tasks = []) {
         this.tasks = tasks;
@@ -120,17 +120,6 @@ class TaskQueue {
             return this.runningQueue;
         }
         return this.runningQueue = this.launchFrom(0);
-    }
-}
-class QueueError extends Error {
-    constructor(message, data) {
-        super(message) /* istanbul ignore next: because stupid typescript */;
-        this.data = data;
-        Object.setPrototypeOf(this, QueueError.prototype);
-        this.name = 'ResponseException';
-    }
-    toString() {
-        return this.name + ': ' + this.message;
     }
 }
 
