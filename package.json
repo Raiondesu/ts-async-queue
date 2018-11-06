@@ -1,7 +1,7 @@
 {
   "name": "ts-async-queue",
   "version": "0.0.0",
-  "description": "Simple fetch client API to spice up your application",
+  "description": "A simple async-await task queue written in TypeScript",
   "keywords": [],
   "main": "dist/lib/index.js",
   "module": "dist/ts-async-queue.es.js",
