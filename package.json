@@ -1,0 +1,90 @@
+{
+  "name": "ts-async-queue",
+  "version": "0.0.0",
+  "description": "Simple fetch client API to spice up your application",
+  "keywords": [],
+  "main": "dist/lib/index.js",
+  "module": "dist/ts-async-queue.es.js",
+  "unpkg": "dist/ts-async-queue.iife.js",
+  "typings": "dist/types/ts-async-queue.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "author": "Raiondesu <a.raiondesu@gmail.com>",
+  "repository": "Raiondesu/ts-async-queue",
+  "bugs": {
+    "url": "https://github.com/Raiondesu/ts-async-queue/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
+    "start": "rollup -c rollup.config.ts -w",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:prod": "npm run test -- --coverage --no-cache",
+    "coverage": "cat ./coverage/lcov.info | coveralls",
+    "preversion": "npm run test:prod && npm run build && (git add .) && git commit -m tests-and-build.",
+    "patch": "npm version patch && npm publish && git push",
+    "minor": "npm version minor && npm publish && git push",
+    "major": "npm version major && npm publish && git push"
+  },
+  "jest": {
+    "testURL": "https://google.com",
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testEnvironment": "jsdom",
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "coverageReporters": [
+      "lcov",
+      "text"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/",
+      "/dist/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 95,
+        "lines": 95,
+        "statements": 95
+      }
+    },
+    "collectCoverage": true
+  },
+  "devDependencies": {
+    "@types/jest": "^22.0.0",
+    "@types/node": "^10.0.3",
+    "@types/node-fetch": "^2.1.2",
+    "colors": "^1.1.2",
+    "coveralls": "^3.0.0",
+    "cross-env": "^5.0.1",
+    "isomorphic-fetch": "^2.2.1",
+    "jest": "^22.0.2",
+    "lodash.camelcase": "^4.3.0",
+    "rimraf": "^2.6.1",
+    "rollup": "^0.59.2",
+    "rollup-plugin-commonjs": "^9.0.0",
+    "rollup-plugin-json": "^3.0.0",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-typescript2": "^0.13.0",
+    "rollup-plugin-uglify": "^6.0.0",
+    "ts-jest": "^22.0.0",
+    "ts-node": "^6.0.0",
+    "typescript": "^3.0.0"
+  },
+  "dependencies": {}
+}
