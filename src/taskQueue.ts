@@ -19,30 +19,30 @@ export class TaskQueue {
     /**
      * Tasklist
      */
-    private tasks: Task[] = []
+    protected tasks: Task[] = []
   ) {}
   /**
    * A currently running queue
    */
-  private currentQueue?: Promise<any[]>;
+  protected currentQueue?: Promise<any[]>;
 
 
   /**
    * `true` if the queue is running
    */
-  private running: boolean = false;
+  protected running: boolean = false;
 
   /**
    * An index at which the queue was paused
    */
-  private pauseIndex: number = -1;
+  protected pauseIndex: number = -1;
 
   /**
    * Remove a task from queue by its index
    *
    * @returns a removed task if found
    */
-  private dequeueByIndex(index: number) {
+  protected dequeueByIndex(index: number) {
     if (index === this.length - 1) {
       return this.tasks.pop();
     }
@@ -62,7 +62,7 @@ export class TaskQueue {
    * @param {T} [task] a reference to the task function to remove by
    * @returns a removed task if found
    */
-  private dequeueByTask<T extends Task>(task?: T) {
+  protected dequeueByTask<T extends Task>(task?: T) {
     if (!task) {
       return this.tasks.pop();
     }
@@ -81,7 +81,7 @@ export class TaskQueue {
    * @param {number} from a point to execute a queue from
    * @returns a promise that resolves to task results array when the queue is finished
    */
-  private async launchFrom(from: number) {
+  protected async launchFrom(from: number) {
     const results: any[] = [];
     const entries = this.tasks.slice(from).entries();
 
