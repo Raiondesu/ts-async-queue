@@ -1,3 +1,6 @@
+/**
+ * An error raised during the queue execution
+ */
 export class QueueError<T> extends Error {
   constructor(
     message: string,
