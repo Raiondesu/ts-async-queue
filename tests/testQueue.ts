@@ -1,11 +1,10 @@
-import { TaskQueue, Task } from '../src';
+import { TaskQueue, Task } from '../src/taskQueue';
 
 /**
  * Exposes some vital properties for testing
  */
 export class TestQueue extends TaskQueue {
   public tasks: Task[];
-  public lastQueue: Promise<any>;
-  public running: boolean = false;
+  public lastQueue: Promise<any[]>;
   public pauseIndex: number = -1;
 }

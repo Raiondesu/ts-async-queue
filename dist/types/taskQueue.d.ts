@@ -11,7 +11,7 @@ export declare class TaskQueue {
     /**
      * Tasklist
      */
-    private tasks;
+    protected tasks: Task[];
     /**
      * Creates an instance of TaskQueue.
      * @param {Task[]} [tasks=[]] Tasklist
@@ -22,29 +22,41 @@ export declare class TaskQueue {
      */
     tasks?: Task[]);
     /**
-     * A currently running queue
+     * The most recent running queue
      */
-    private currentQueue?;
+    protected lastQueue?: Promise<any[]>;
+    /**
+     * Results of a last queue execution
+     */
+    protected _lastResults?: any[];
+    /**
+     * Results of a last queue execution
+     */
+    readonly lastResults: any[] | undefined;
     /**
      * `true` if the queue is running
      */
-    private running;
+    protected running: boolean;
+    /**
+     * `true` if the queue is running
+     */
+    readonly isRunning: boolean;
     /**
      * An index at which the queue was paused
      */
-    private pauseIndex;
+    protected pauseIndex: number;
     /**
      * Remove a task from queue by its index
      *
      * @returns a removed task if found
      */
-    private dequeueByIndex;
+    protected dequeueByIndex(index: number): Task | undefined;
     /**
      * Remove a task from queue by its reference. If no task was given, removes the last task.
      * @param {T} [task] a reference to the task function to remove by
      * @returns a removed task if found
      */
-    private dequeueByTask;
+    protected dequeueByTask<T extends Task>(task?: T): Task | undefined;
     /**
      * Start executing the queue from a certain point.
      * Halts if `running` flag is off (pause has occured).
@@ -52,9 +64,10 @@ export declare class TaskQueue {
      * If any error in any task is raised - pauses queue execution and throws the error upstack.
      *
      * @param {number} from a point to execute a queue from
+     * @param {Array<any>} last saved results to add to
      * @returns a promise that resolves to task results array when the queue is finished
      */
-    private launchFrom;
+    protected launchFrom(from: number, lastResults?: any[]): Promise<any[]>;
     /**
      * Adds one or more tasks to queue.
      */
@@ -66,19 +79,26 @@ export declare class TaskQueue {
     dequeue<T extends Task>(task?: T): Task | undefined;
     dequeue(index: number): Task | undefined;
     /**
+     * Removes the last task from the queue.
+     * @returns a removed task if found
+     */
+    pop(): Task | undefined;
+    /**
      * Get last added task without mutating the queue
      */
-    peek(): Task | undefined;
+    peek(): Task;
     /**
      * Last added task
      */
-    readonly last: Task | undefined;
+    readonly last: Task;
     /**
      * Queue length
      */
     readonly length: number;
     /**
-     * Completely clears the queue.
+     * Completely clears the queue and stops executions.
+     *
+     * If the queue is currently running it is recommended to call `await pause()` first!
      */
     clear(): void;
     /**
@@ -94,11 +114,11 @@ export declare class TaskQueue {
      */
     resume(): Promise<any[]>;
     /**
-     * Stops queue execution.
+     * Stops queue execution and clears results.
      *
-     * @returns a promise that resolves as soon as the queue completely stops executing
+     * @returns a promise that resolves to queue results (or `undefined` if the queue has already been stopeed) as soon as the queue completely stops executing
      */
-    stop(): Promise<void>;
+    stop(): Promise<any[] | undefined>;
     /**
      * Starts task queue execution.
      *

@@ -2,12 +2,27 @@
   "name": "ts-async-queue",
   "version": "0.0.0",
   "description": "A simple async-await task queue written in TypeScript",
-  "keywords": [],
+  "keywords": [
+    "task",
+    "async",
+    "await",
+    "esnext",
+    "typescript",
+    "javascript",
+    "ts",
+    "js",
+    "queue",
+    "task-queue",
+    "management",
+    "requests",
+    "ajax"
+  ],
   "main": "dist/lib/index.js",
   "module": "dist/ts-async-queue.es.js",
   "unpkg": "dist/ts-async-queue.iife.js",
   "typings": "dist/types/ts-async-queue.d.ts",
   "files": [
+    "index.ts",
     "src",
     "dist"
   ],

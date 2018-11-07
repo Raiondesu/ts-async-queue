@@ -3,7 +3,7 @@ import { QueueError } from './queueError';
 /**
  * A function that returns promise and has no arguments
  */
-export type Task = () => Promise<any>;
+export type Task<E = any> = () => Promise<E>;
 
 /**
  * Manages a queue of async tasks
@@ -22,7 +22,7 @@ export class TaskQueue {
     protected tasks: Task[] = []
   ) {}
   /**
-   * A currently running queue
+   * The most recent running queue
    */
   protected lastQueue?: Promise<any[]>;
 
@@ -104,27 +104,24 @@ export class TaskQueue {
    */
   protected async launchFrom(from: number, lastResults: any[] = []) {
     this._lastResults = lastResults;
-    const tasks = from > 0 ? this.tasks.slice(from) : this.tasks;
+    const tasks = this.tasks.slice(from);
 
     this.running = true;
     this.pauseIndex = -1;
 
-    let index = 0;
-    for (const task of tasks) {
+    for (let i = 0, task = tasks[i]; i < tasks.length; i++, task = tasks[i]) {
       if (!this.running) {
-        this.pauseIndex = index;
+        this.pauseIndex = i;
         break;
       }
 
       try {
         this._lastResults.push(await task());
       } catch (e) {
-        this.pauseIndex = index;
+        this.pauseIndex = i;
         this.running = false;
-        throw new QueueError(`Queue paused at task #${index + 1} due to error in handler ${task}`, this, e);
+        throw new QueueError(`Queue paused at task #${i + 1} due to error in handler ${task}`, this, e);
       }
-
-      index++;
     }
 
     this.running = false;
@@ -190,9 +187,9 @@ export class TaskQueue {
   /**
    * Completely clears the queue and stops executions.
    *
-   * If the queue is currently running it is recommended to call `pause()` first!
+   * If the queue is currently running it is recommended to call `await pause()` first!
    */
-  public async clear() {
+  public clear() {
     this.pauseIndex = -1;
     this.lastQueue = undefined;
     this.tasks.splice(0);

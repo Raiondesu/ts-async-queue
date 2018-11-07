@@ -44,8 +44,8 @@ export default [
     input,
     output: [
       { file: output('es5'), format: 'cjs', sourcemap: true, exports: 'named' },
-      { file: output('umd'), format: 'umd', sourcemap: true, name: 'TaskQueue', exports: 'named' },
-      { file: output('iife'), format: 'iife', sourcemap: true, name: 'TaskQueue', exports: 'named' },
+      { file: output('umd'), format: 'umd', sourcemap: true, name: 'tsQueue', exports: 'named' },
+      { file: output('iife'), format: 'iife', sourcemap: true, name: 'tsQueue', exports: 'named' },
     ],
     ...common('es5')
   },

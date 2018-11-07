@@ -1,2 +1,2 @@
-export * from './taskQueue';
+export { TaskQueue } from './taskQueue';
 export * from './queueError';

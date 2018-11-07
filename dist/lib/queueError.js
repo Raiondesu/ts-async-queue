@@ -18,11 +18,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 var QueueError = /** @class */ (function (_super) {
     __extends(QueueError, _super);
-    function QueueError(message, data) {
+    function QueueError(message, queue, data) {
         var _this = _super.call(this, message) /* istanbul ignore next: because stupid typescript */ || this;
+        _this.queue = queue;
         _this.data = data;
         Object.setPrototypeOf(_this, QueueError.prototype);
-        _this.name = 'ResponseException';
+        _this.name = 'QueueError';
         return _this;
     }
     QueueError.prototype.toString = function () {

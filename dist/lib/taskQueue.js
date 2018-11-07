@@ -34,32 +34,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __values = (this && this.__values) || function (o) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
-    if (m) return m.call(o);
-    return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-};
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var queueError_1 = require("./queueError");
 /**
@@ -88,6 +62,26 @@ var TaskQueue = /** @class */ (function () {
          */
         this.pauseIndex = -1;
     }
+    Object.defineProperty(TaskQueue.prototype, "lastResults", {
+        /**
+         * Results of a last queue execution
+         */
+        get: function () {
+            return this._lastResults && this._lastResults.slice();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TaskQueue.prototype, "isRunning", {
+        /**
+         * `true` if the queue is running
+         */
+        get: function () {
+            return this.running;
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      * Remove a task from queue by its index
      *
@@ -123,55 +117,47 @@ var TaskQueue = /** @class */ (function () {
      * If any error in any task is raised - pauses queue execution and throws the error upstack.
      *
      * @param {number} from a point to execute a queue from
+     * @param {Array<any>} last saved results to add to
      * @returns a promise that resolves to task results array when the queue is finished
      */
-    TaskQueue.prototype.launchFrom = function (from) {
+    TaskQueue.prototype.launchFrom = function (from, lastResults) {
+        if (lastResults === void 0) { lastResults = []; }
         return __awaiter(this, void 0, void 0, function () {
-            var e_1, _a, results, entries, entries_1, entries_1_1, _b, index, task, _c, _d, e_2, e_1_1;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
+            var tasks, i, task, _a, _b, e_1;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
-                        results = [];
-                        entries = this.tasks.slice(from).entries();
-                        _e.label = 1;
+                        this._lastResults = lastResults;
+                        tasks = this.tasks.slice(from);
+                        this.running = true;
+                        this.pauseIndex = -1;
+                        i = 0, task = tasks[i];
+                        _c.label = 1;
                     case 1:
-                        _e.trys.push([1, 8, 9, 10]);
-                        entries_1 = __values(entries), entries_1_1 = entries_1.next();
-                        _e.label = 2;
-                    case 2:
-                        if (!!entries_1_1.done) return [3 /*break*/, 7];
-                        _b = __read(entries_1_1.value, 2), index = _b[0], task = _b[1];
+                        if (!(i < tasks.length)) return [3 /*break*/, 6];
                         if (!this.running) {
-                            this.pauseIndex = index;
-                            return [3 /*break*/, 7];
+                            this.pauseIndex = i;
+                            return [3 /*break*/, 6];
                         }
-                        _e.label = 3;
-                    case 3:
-                        _e.trys.push([3, 5, , 6]);
-                        _d = (_c = results).push;
+                        _c.label = 2;
+                    case 2:
+                        _c.trys.push([2, 4, , 5]);
+                        _b = (_a = this._lastResults).push;
                         return [4 /*yield*/, task()];
+                    case 3:
+                        _b.apply(_a, [_c.sent()]);
+                        return [3 /*break*/, 5];
                     case 4:
-                        _d.apply(_c, [_e.sent()]);
-                        return [3 /*break*/, 6];
+                        e_1 = _c.sent();
+                        this.pauseIndex = i;
+                        this.running = false;
+                        throw new queueError_1.QueueError("Queue paused at task #" + (i + 1) + " due to error in handler " + task, this, e_1);
                     case 5:
-                        e_2 = _e.sent();
-                        this.pause();
-                        throw new queueError_1.QueueError("Queue paused at task #" + index + " due to error in handler " + task, e_2);
+                        i++, task = tasks[i];
+                        return [3 /*break*/, 1];
                     case 6:
-                        entries_1_1 = entries_1.next();
-                        return [3 /*break*/, 2];
-                    case 7: return [3 /*break*/, 10];
-                    case 8:
-                        e_1_1 = _e.sent();
-                        e_1 = { error: e_1_1 };
-                        return [3 /*break*/, 10];
-                    case 9:
-                        try {
-                            if (entries_1_1 && !entries_1_1.done && (_a = entries_1.return)) _a.call(entries_1);
-                        }
-                        finally { if (e_1) throw e_1.error; }
-                        return [7 /*endfinally*/];
-                    case 10: return [2 /*return*/, results];
+                        this.running = false;
+                        return [2 /*return*/, this._lastResults.slice()];
                 }
             });
         });
@@ -191,16 +177,23 @@ var TaskQueue = /** @class */ (function () {
         if (typeof arg === 'number') {
             return this.dequeueByIndex(arg);
         }
-        else if (typeof arg === 'function') {
+        else if (typeof arg === 'function' || !arg) {
             return this.dequeueByTask(arg);
         }
-        throw new TypeError('Argument must either be a number or a function!');
+        throw new TypeError('Argument\'s type must either be number, function or undefined!');
+    };
+    /**
+     * Removes the last task from the queue.
+     * @returns a removed task if found
+     */
+    TaskQueue.prototype.pop = function () {
+        return this.dequeue();
     };
     /**
      * Get last added task without mutating the queue
      */
     TaskQueue.prototype.peek = function () {
-        return this.tasks.length > 0 ? this.tasks[this.tasks.length - 1] : undefined;
+        return this.tasks[this.tasks.length - 1];
     };
     Object.defineProperty(TaskQueue.prototype, "last", {
         /**
@@ -223,9 +216,13 @@ var TaskQueue = /** @class */ (function () {
         configurable: true
     });
     /**
-     * Completely clears the queue.
+     * Completely clears the queue and stops executions.
+     *
+     * If the queue is currently running it is recommended to call `await pause()` first!
      */
     TaskQueue.prototype.clear = function () {
+        this.pauseIndex = -1;
+        this.lastQueue = undefined;
         this.tasks.splice(0);
     };
     /**
@@ -235,7 +232,7 @@ var TaskQueue = /** @class */ (function () {
      */
     TaskQueue.prototype.pause = function () {
         this.running = false;
-        return this.currentQueue;
+        return this.lastQueue;
     };
     /**
      * Resumes a previously paused queue.
@@ -243,23 +240,28 @@ var TaskQueue = /** @class */ (function () {
      * @returns a promise that resolves as soon as the queue is completed
      */
     TaskQueue.prototype.resume = function () {
-        return this.currentQueue = this.launchFrom(this.pauseIndex);
+        return this.lastQueue = this.launchFrom(this.pauseIndex, this._lastResults);
     };
     /**
-     * Stops queue execution.
+     * Stops queue execution and clears results.
      *
-     * @returns a promise that resolves as soon as the queue completely stops executing
+     * @returns a promise that resolves to queue results (or `undefined` if the queue has already been stopeed) as soon as the queue completely stops executing
      */
     TaskQueue.prototype.stop = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var results;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.pause()];
                     case 1:
                         _a.sent();
                         this.pauseIndex = -1;
-                        this.currentQueue = undefined;
-                        return [2 /*return*/];
+                        this.lastQueue = undefined;
+                        results = this.lastResults;
+                        if (this._lastResults) {
+                            this._lastResults = undefined;
+                        }
+                        return [2 /*return*/, results];
                 }
             });
         });
@@ -272,10 +274,10 @@ var TaskQueue = /** @class */ (function () {
      * @returns promise with task results as an array sorted by task execution order
      */
     TaskQueue.prototype.start = function () {
-        if (this.currentQueue) {
-            return this.currentQueue;
+        if (this.lastQueue) {
+            return this.lastQueue;
         }
-        return this.currentQueue = this.launchFrom(0);
+        return this.lastQueue = this.launchFrom(0);
     };
     return TaskQueue;
 }());

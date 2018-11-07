@@ -1,4 +1,4 @@
-import { Task, QueueError } from '../src';
+import { QueueError } from '../src';
 import { TestQueue as TaskQueue } from './testQueue';
 
 describe('TaskQueue', () => {
@@ -103,11 +103,11 @@ describe('TaskQueue', () => {
   });
 
   it('runs and finishes the queue correctly', async () => {
-    expect(queue.running).toBe(false);
+    expect(queue.isRunning).toBe(false);
     expect(queue.lastQueue).toBeUndefined();
 
     const thread = queue.start();
-    expect(queue.running).toBe(true);
+    expect(queue.isRunning).toBe(true);
 
     expect(thread).toBe(queue.lastQueue);
     expect(thread).toBe(queue.start());
@@ -129,13 +129,13 @@ describe('TaskQueue', () => {
     } catch (e) {
       expect(e).toBeInstanceOf(QueueError);
 
-      expect(queue.running).toBe(false);
+      expect(queue.isRunning).toBe(false);
       expect(queue.pauseIndex).toBe(minlength);
 
       expect(e.queue.lastResults).toEqual([1, 2]);
     }
 
-    expect(queue.running).toBe(false);
+    expect(queue.isRunning).toBe(false);
   };
 
   it('throws QueueError on runtime queue errors and pauses execution', throwsQueueError);
@@ -160,7 +160,7 @@ describe('TaskQueue', () => {
     await queue.pause();
 
     expect(queue.lastQueue).toBeTruthy();
-    expect(queue.running).toBe(false);
+    expect(queue.isRunning).toBe(false);
     expect(queue.pauseIndex).toBe(1);
     expect(queue.lastResults).toEqual([1]);
 
@@ -179,7 +179,7 @@ describe('TaskQueue', () => {
     const results = await queue.stop();
 
     expect(results).toEqual([1]);
-    expect(queue.running).toBe(false);
+    expect(queue.isRunning).toBe(false);
     expect(queue.lastQueue).toBeUndefined();
 
     // Empty queue
@@ -200,7 +200,8 @@ describe('TaskQueue', () => {
 
     expect(queue.isRunning).toBe(true);
 
-    await queue.clear();
+    await queue.pause();
+    queue.clear();
 
     expect(queue.isRunning).toBe(false);
     expect(queue.pauseIndex).toBe(-1);
