@@ -205,3 +205,40 @@ name | type | description
 `last` | `Task` | The last task added to the queue
 `peek()` | `Task` | A method alias for `last`
 `lastResults` | `Array` | An array of results captured from the last queue execution
+
+
+## QueueError
+
+> A simple error class that is raised if the queue encountered an error in a currently running task
+
+Properties:
+
+name | type | description
+-----|------|-----------------------
+`message` | `string` | An error message text
+`queue` | `TaskQueue` | The queue instance error is raised from
+`data` | `any` | Internal error data
+`stack` | `string` | Error stack trace
+
+Usage example
+
+```js
+const queue1 = new TaskQueue([
+  () => Promise.resolve('task1'),
+  () => Promise.resolve('task2')
+]);
+
+const queue2 = new TaskQueue([
+  () => Promise.reject('task1') // This one rejects the promise, causing an exception to be thrown,
+  () => Promise.resolve('task2')
+]);
+
+try {
+  await queue1.start();
+  await queue2.start();
+} catch (e) {
+  console.log(e.queue === queue2); // -> true
+
+  console.log(e); // -> Queue paused at task #1 due to error in handler () => Promise.reject('task1')
+}
+```
