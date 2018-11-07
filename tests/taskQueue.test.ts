@@ -7,8 +7,8 @@ describe('TaskQueue', () => {
 
   beforeEach(() => {
     queue = new TaskQueue([
-      async () => new Promise((r, _) => setTimeout(() => r(1), 500)),
-      async () => new Promise((r, _) => setTimeout(() => r(2), 500)),
+      async () => new Promise((r, _) => setTimeout(() => r(1), 50)),
+      async () => new Promise((r, _) => setTimeout(() => r(2), 50)),
     ]);
 
     expect(queue.length).toBe(minlength);
