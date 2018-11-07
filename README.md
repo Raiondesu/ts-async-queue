@@ -19,6 +19,7 @@ Unlike many similar libraries for working with async queues, this one behaves mo
 ## Installation options
 
 `ts-async-queue` comes with a couple of installation options:
+
 format-name | exports    | description
 ------------|------------|-------------------
 es5         | named      | Contains an es5-compatible version of `ts-async-queue`
