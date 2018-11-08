@@ -1,7 +1,7 @@
 /**
  * A function that returns promise and has no arguments
  */
-export declare type Task = () => Promise<any>;
+export declare type Task<E = any> = () => Promise<E>;
 /**
  * Manages a queue of async tasks
  *
@@ -50,13 +50,13 @@ export declare class TaskQueue {
      *
      * @returns a removed task if found
      */
-    protected dequeueByIndex(index: number): Task | undefined;
+    protected dequeueByIndex(index: number): Task<any> | undefined;
     /**
      * Remove a task from queue by its reference. If no task was given, removes the last task.
      * @param {T} [task] a reference to the task function to remove by
      * @returns a removed task if found
      */
-    protected dequeueByTask<T extends Task>(task?: T): Task | undefined;
+    protected dequeueByTask<T extends Task>(task?: T): Task<any> | undefined;
     /**
      * Start executing the queue from a certain point.
      * Halts if `running` flag is off (pause has occured).
@@ -82,15 +82,15 @@ export declare class TaskQueue {
      * Removes the last task from the queue.
      * @returns a removed task if found
      */
-    pop(): Task | undefined;
+    pop(): Task<any> | undefined;
     /**
      * Get last added task without mutating the queue
      */
-    peek(): Task;
+    peek(): Task<any>;
     /**
      * Last added task
      */
-    readonly last: Task;
+    readonly last: Task<any>;
     /**
      * Queue length
      */
