@@ -13,14 +13,20 @@ export type Task<E = any> = () => Promise<E>;
 export class TaskQueue {
   /**
    * Creates an instance of TaskQueue.
+   */
+  constructor();
+  /**
+   * Creates an instance of TaskQueue.
    * @param {Task[]} [tasks=[]] Tasklist
    */
+  constructor(tasks: Task[]);
   constructor(
     /**
      * Tasklist
      */
     protected tasks: Task[] = []
   ) {}
+
   /**
    * The most recent running queue
    */
@@ -55,9 +61,9 @@ export class TaskQueue {
   }
 
   /**
-   * An index at which the queue was paused
+   * An index at which the queue is currenlty running
    */
-  protected runningIndex: number = -1;
+  protected index = -1;
 
 
   /**
@@ -66,7 +72,7 @@ export class TaskQueue {
    * `-1` if the queue is not currently running
    */
   public get currentTaskIndex() {
-    return this.runningIndex;
+    return this.index;
   }
 
   /**
@@ -74,7 +80,7 @@ export class TaskQueue {
    *
    * `undefined` if the queue is not currently running
    */
-  public get currentRunningTask() {
+  public get currentRunningTask(): Task | undefined {
     return this.tasks[this.currentTaskIndex];
   }
 
@@ -127,24 +133,18 @@ export class TaskQueue {
     this._lastResults = lastResults;
 
     this.running = true;
-    this.runningIndex = -1;
+    this.index = from;
 
     for (
-      let i = from, task = this.tasks[i];
-      i < this.tasks.length;
-      i++, task = this.tasks[i]
+      let task = this.tasks[this.index];
+      (this.index < this.tasks.length) && this.running;
+      this.index++
     ) {
-      if (!this.running) {
-        break;
-      }
-
-      this.runningIndex = i;
-
       try {
-        this._lastResults.push(await task());
+        this._lastResults.push(await this.tasks[this.index]());
       } catch (e) {
         this.running = false;
-        throw new QueueError(`Queue paused at task #${i + 1} due to error in handler ${task}`, this, e);
+        throw new QueueError(`Queue paused at task #${this.index + 1} due to error in handler ${task}`, this, e);
       }
     }
 
@@ -156,7 +156,7 @@ export class TaskQueue {
   /**
    * Adds one or more tasks to queue.
    */
-  public enqueue<T extends Task>(...tasks: T[]) {
+  public enqueue(...tasks: Task[]) {
     this.tasks.push.apply(this.tasks, tasks);
   }
 
@@ -164,7 +164,7 @@ export class TaskQueue {
    * Removes task from the queue.
    * @returns a removed task if found
    */
-  public dequeue<T extends Task>(task?: T): Task | undefined;
+  public dequeue(task?: Task): Task | undefined;
   public dequeue(index: number): Task | undefined;
   public dequeue(): Task | undefined {
     const arg = arguments[0];
@@ -189,7 +189,7 @@ export class TaskQueue {
   /**
    * Get last added task without mutating the queue
    */
-  public peek() {
+  public peek(): Task | undefined {
     return this.tasks[this.tasks.length - 1];
   }
 
@@ -214,7 +214,7 @@ export class TaskQueue {
    * If the queue is currently running it is recommended to call `await pause()` first!
    */
   public clear() {
-    this.runningIndex = -1;
+    this.index = -1;
     this.lastQueue = undefined;
     this.tasks.splice(0);
   }
@@ -236,7 +236,7 @@ export class TaskQueue {
    * @returns a promise that resolves as soon as the queue is completed
    */
   public resume() {
-    return this.lastQueue = this.launchFrom(this.runningIndex, this._lastResults);
+    return this.lastQueue = this.launchFrom(this.index, this._lastResults);
   }
 
   /**
@@ -246,7 +246,7 @@ export class TaskQueue {
    */
   public async stop() {
     await this.pause();
-    this.runningIndex = -1;
+    this.index = -1;
     this.lastQueue = undefined;
     const results = this.lastResults;
 
