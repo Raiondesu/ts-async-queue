@@ -41,6 +41,8 @@ export class TaskQueue {
 
   /**
    * `true` if the queue is running
+   *
+   * SHOULD NOT BE MODIFIED outside the class
    */
   protected running: boolean = false;
 
@@ -55,7 +57,26 @@ export class TaskQueue {
   /**
    * An index at which the queue was paused
    */
-  protected pauseIndex: number = -1;
+  protected runningIndex: number = -1;
+
+
+  /**
+   * A task index at which the queue is currently running
+   *
+   * `-1` if the queue is not currently running
+   */
+  public get currentTaskIndex() {
+    return this.runningIndex;
+  }
+
+  /**
+   * A task which is currently running in the queue
+   *
+   * `undefined` if the queue is not currently running
+   */
+  public get currentRunningTask() {
+    return this.tasks[this.currentTaskIndex];
+  }
 
   /**
    * Remove a task from queue by its index
@@ -104,21 +125,24 @@ export class TaskQueue {
    */
   protected async launchFrom(from: number, lastResults: any[] = []) {
     this._lastResults = lastResults;
-    const tasks = this.tasks.slice(from);
 
     this.running = true;
-    this.pauseIndex = -1;
+    this.runningIndex = -1;
 
-    for (let i = 0, task = tasks[i]; i < tasks.length; i++, task = tasks[i]) {
+    for (
+      let i = from, task = this.tasks[i];
+      i < this.tasks.length;
+      i++, task = this.tasks[i]
+    ) {
       if (!this.running) {
-        this.pauseIndex = i;
         break;
       }
+
+      this.runningIndex = i;
 
       try {
         this._lastResults.push(await task());
       } catch (e) {
-        this.pauseIndex = i;
         this.running = false;
         throw new QueueError(`Queue paused at task #${i + 1} due to error in handler ${task}`, this, e);
       }
@@ -190,7 +214,7 @@ export class TaskQueue {
    * If the queue is currently running it is recommended to call `await pause()` first!
    */
   public clear() {
-    this.pauseIndex = -1;
+    this.runningIndex = -1;
     this.lastQueue = undefined;
     this.tasks.splice(0);
   }
@@ -212,7 +236,7 @@ export class TaskQueue {
    * @returns a promise that resolves as soon as the queue is completed
    */
   public resume() {
-    return this.lastQueue = this.launchFrom(this.pauseIndex, this._lastResults);
+    return this.lastQueue = this.launchFrom(this.runningIndex, this._lastResults);
   }
 
   /**
@@ -222,7 +246,7 @@ export class TaskQueue {
    */
   public async stop() {
     await this.pause();
-    this.pauseIndex = -1;
+    this.runningIndex = -1;
     this.lastQueue = undefined;
     const results = this.lastResults;
 
