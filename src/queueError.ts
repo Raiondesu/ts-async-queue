@@ -15,7 +15,7 @@ export class QueueError<T> extends Error {
   }
 
   public get failedTask() {
-    return this.queue.currentRunningTask;
+    return this.queue.currentRunningTask!;
   }
 
   public get failedTaskIndex() {
