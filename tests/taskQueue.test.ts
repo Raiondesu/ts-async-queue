@@ -130,7 +130,7 @@ describe('TaskQueue', () => {
       expect(e).toBeInstanceOf(QueueError);
 
       expect(queue.isRunning).toBe(false);
-      expect(queue.pauseIndex).toBe(minlength);
+      expect(queue.index).toBe(minlength);
 
       expect(e.queue.lastResults).toEqual([1, 2]);
     }
@@ -161,7 +161,7 @@ describe('TaskQueue', () => {
 
     expect(queue.lastQueue).toBeTruthy();
     expect(queue.isRunning).toBe(false);
-    expect(queue.pauseIndex).toBe(1);
+    expect(queue.index).toBe(1);
     expect(queue.lastResults).toEqual([1]);
 
     queue.enqueue(
@@ -204,7 +204,7 @@ describe('TaskQueue', () => {
     queue.clear();
 
     expect(queue.isRunning).toBe(false);
-    expect(queue.pauseIndex).toBe(-1);
+    expect(queue.index).toBe(-1);
     expect(queue.lastResults).toEqual([1]);
   });
 });

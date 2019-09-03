@@ -15,6 +15,8 @@ describe('QueueError', () => {
       expect(e).toBeInstanceOf(QueueError);
       expect(e.message).toBe(message);
       expect(e.data).toMatchObject(data);
+      expect(e.failedTaskIndex).toBe(-1);
+      expect(e.failedTask).toBe(undefined);
     }
   });
 
@@ -26,7 +28,7 @@ describe('QueueError', () => {
     try {
       throw new QueueError(message, new TaskQueue(), data);
     } catch (e) {
-      expect(String(e)).toBe(`QueueError: test error`);
+      expect(String(e).startsWith(`QueueError: test error`)).toBe(true);
     }
   });
 
