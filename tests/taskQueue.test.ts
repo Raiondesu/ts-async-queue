@@ -187,8 +187,8 @@ describe('TaskQueue', () => {
     queue.start();
     expect(await queue.stop()).toEqual([]);
 
-    // Returnes undefined for already stopped queue
-    expect(await queue.stop()).toEqual(undefined);
+    // Returnes empty array for already stopped queue
+    expect(await queue.stop()).toEqual([]);
   });
 
   it('clears the queue and stops execution', async () => {
