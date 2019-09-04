@@ -26,8 +26,22 @@ var QueueError = /** @class */ (function (_super) {
         _this.name = 'QueueError';
         return _this;
     }
+    Object.defineProperty(QueueError.prototype, "failedTask", {
+        get: function () {
+            return this.queue.currentRunningTask;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(QueueError.prototype, "failedTaskIndex", {
+        get: function () {
+            return this.queue.currentTaskIndex;
+        },
+        enumerable: true,
+        configurable: true
+    });
     QueueError.prototype.toString = function () {
-        return this.name + ': ' + this.message;
+        return this.name + ': ' + this.message + '\n' + this.data;
     };
     return QueueError;
 }(Error));

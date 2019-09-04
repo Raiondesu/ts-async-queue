@@ -14,13 +14,13 @@ export declare class TaskQueue {
     protected tasks: Task[];
     /**
      * Creates an instance of TaskQueue.
+     */
+    constructor();
+    /**
+     * Creates an instance of TaskQueue.
      * @param {Task[]} [tasks=[]] Tasklist
      */
-    constructor(
-    /**
-     * Tasklist
-     */
-    tasks?: Task[]);
+    constructor(tasks: Task[]);
     /**
      * The most recent running queue
      */
@@ -28,13 +28,17 @@ export declare class TaskQueue {
     /**
      * Results of a last queue execution
      */
-    protected _lastResults?: any[];
+    protected _lastResults: any[];
     /**
-     * Results of a last queue execution
+     * Results of a last queue execution.
+     *
+     * Empty, if execution hasn't started yet.
      */
-    readonly lastResults: any[] | undefined;
+    readonly lastResults: any[];
     /**
      * `true` if the queue is running
+     *
+     * SHOULD NOT BE MODIFIED outside the class
      */
     protected running: boolean;
     /**
@@ -42,9 +46,21 @@ export declare class TaskQueue {
      */
     readonly isRunning: boolean;
     /**
-     * An index at which the queue was paused
+     * An index at which the queue is currenlty running
      */
-    protected pauseIndex: number;
+    protected index: number;
+    /**
+     * A task index at which the queue is currently running
+     *
+     * `-1` if the queue is not currently running
+     */
+    readonly currentTaskIndex: number;
+    /**
+     * A task which is currently running in the queue
+     *
+     * `undefined` if the queue is not currently running
+     */
+    readonly currentRunningTask: Task | undefined;
     /**
      * Remove a task from queue by its index
      *
@@ -63,20 +79,25 @@ export declare class TaskQueue {
      *
      * If any error in any task is raised - pauses queue execution and throws the error upstack.
      *
-     * @param {number} from a point to execute a queue from
-     * @param {Array<any>} last saved results to add to
+     * @param {number} from
+     *    A point to execute a queue from.
+     * @param {Array<any>} lastResults
+     *    Saved results to add to.
+     * @param {boolean} running
+     *    Internal indication if the method should continue running.
+     *    Passing `false` will result in the method not running.
      * @returns a promise that resolves to task results array when the queue is finished
      */
-    protected launchFrom(from: number, lastResults?: any[]): Promise<any[]>;
+    protected launchFrom(from: number, lastResults?: any[], running?: boolean): Promise<any[]>;
     /**
      * Adds one or more tasks to queue.
      */
-    enqueue<T extends Task>(...tasks: T[]): void;
+    enqueue(...tasks: Task[]): void;
     /**
      * Removes task from the queue.
      * @returns a removed task if found
      */
-    dequeue<T extends Task>(task?: T): Task | undefined;
+    dequeue(task?: Task): Task | undefined;
     dequeue(index: number): Task | undefined;
     /**
      * Removes the last task from the queue.
@@ -86,19 +107,17 @@ export declare class TaskQueue {
     /**
      * Get last added task without mutating the queue
      */
-    peek(): Task<any>;
+    peek(): Task | undefined;
     /**
      * Last added task
      */
-    readonly last: Task<any>;
+    readonly last: Task<any> | undefined;
     /**
      * Queue length
      */
     readonly length: number;
     /**
      * Completely clears the queue and stops executions.
-     *
-     * If the queue is currently running it is recommended to call `await pause()` first!
      */
     clear(): void;
     /**
@@ -106,7 +125,7 @@ export declare class TaskQueue {
      *
      * @returns a promise that resolves as soon as the queue is paused
      */
-    pause(): Promise<any[]> | undefined;
+    pause(): Promise<any[]>;
     /**
      * Resumes a previously paused queue.
      *
@@ -118,7 +137,7 @@ export declare class TaskQueue {
      *
      * @returns a promise that resolves to queue results (or `undefined` if the queue has already been stopeed) as soon as the queue completely stops executing
      */
-    stop(): Promise<any[] | undefined>;
+    stop(): Promise<any[]>;
     /**
      * Starts task queue execution.
      *
