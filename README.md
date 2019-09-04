@@ -160,9 +160,9 @@ const stopped = queue.stop();
 stopped.then(results => {
   // Here, `results` contains the results of whatever tasks managed to finish their execution
 
-  // If we try to stop the queue again, it will return `undefined`:
+  // If we try to stop the queue again, it will return the same result:
   queue.stop()
-    .then(res => console.log(res)); // logs -> undefined
+    .then(res => console.log(res)); // `res` is equal to `results`
 });
 ```
 
@@ -205,6 +205,8 @@ name | type | description
 `last` | `Task` | The last task added to the queue
 `peek()` | `Task` | A method alias for `last`
 `lastResults` | `Array` | An array of results captured from the last queue execution
+`currentTaskIndex` | `number` | A task index at which the queue is currently running
+`currentRunningTask` | `Task` | A task which is currently running in the queue
 
 
 ## QueueError
@@ -219,6 +221,8 @@ name | type | description
 `queue` | `TaskQueue` | The queue instance error is raised from
 `data` | `any` | Internal error data
 `stack` | `string` | Error stack trace
+`failedTask` | `Task` | The task at which the queue has failed
+`failedTaskIndex` | `number` | An index of the task at which the queue has failed
 
 Usage example
 
