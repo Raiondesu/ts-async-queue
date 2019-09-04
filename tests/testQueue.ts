@@ -6,5 +6,4 @@ import { TaskQueue, Task } from '../src/taskQueue';
 export class TestQueue extends TaskQueue {
   public tasks: Task[];
   public lastQueue: Promise<any[]>;
-  public pauseIndex: number = -1;
 }
