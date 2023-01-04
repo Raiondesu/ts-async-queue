@@ -86,7 +86,7 @@
     "coveralls": "^3.0.0",
     "cross-env": "^5.0.1",
     "isomorphic-fetch": "^2.2.1",
-    "jest": "^22.0.0",
+    "jest": "^29.3.1",
     "lodash.camelcase": "^4.3.0",
     "rimraf": "^2.6.1",
     "rollup": "^0.59.2",
@@ -96,7 +96,7 @@
     "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-typescript2": "^0.13.0",
     "rollup-plugin-uglify": "^6.0.0",
-    "ts-jest": "^22.0.0",
+    "ts-jest": "^29.0.3",
     "ts-node": "^6.0.0",
     "typescript": "^3.0.0"
   },
